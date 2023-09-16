@@ -1,1 +1,70 @@
+1.  Load data from .csv files 
+
+    Load data infile "/Users/mustafa/Downloads/CovidVaccination.csv " 
+      into table Covid_Vaccination fields terminated by ',' enclosed by '"' lines terminated by '\n' ignore 1 rows;
+
+    Load data infile "/Users/mustafa/Downloads/CovidDeahs.csv " 
+      into table Covid_deaths fields terminated by ',' enclosed by '"' lines terminated by '\n' ignore 1 rows;
+
+
+2. Shows chances of dying if you had covid in US.
+	
+    select location, date, total_cases, new_cases, round((total_deaths/total_cases)*100,2) as DeathPercentage 
+      from covid_deaths
+        Where location like "%states%;
+
+
+3. What percentage % of population got covid in US.
+
+    select location, date, population, total_cases, round((total_cases/population)*100) as PopulationInfected 
+      from covid_deaths 
+        where location like "%states%";
+	
+4. Countries with highest infection rate comapred to population.
+
+    select location, population, max(total_cases) as Highest_infection_count, max((total_cases/population)*100) as Population_infected_percent 
+      from covid_deaths 
+        where location like "%states%" 
+          group by location, population 
+            order by Population_infected_percent desc;
+
+
+5. Countries with highest death count per population.
+
+    select location, max(total_deaths) as TotalDeathCount
+      from covid_deaths
+        group by location  
+          order by TotalDeathCount desc;
+
+
+6. Continents with the highest death count per population.
+
+    select continent,max(total_deaths) as TotalDeathCount
+      from covid_deaths
+		    group by continent;
+
+
+7 Total number of new cases as per the dates and death percentage.
+
+    select date, sum(new_cases) as total_cases, sum(new_deaths) as total_deaths, sum(new_deaths)/sum(new_cases)*100 as DeathPercentage
+      from covid_deaths
+        group by date;
+	
+8 Shows % of population that has received at-least one covid vaccine.
+
+    select d.continent, d.location, d.date, d.population, v.new_vaccinations 
+      from covid_deaths d 
+        join covid_vaccination v 
+          on d.location=v.location;
+	
+    Select dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations, 
+    SUM(CONVERT(int,vac.new_vaccinations)) OVER (Partition by dea.Location Order by dea.location, dea.Date) as RollingPeopleVaccinated
+    (RollingPeopleVaccinated/population)*100
+      From PortfolioProject..CovidDeaths dea
+        Join PortfolioProject..CovidVaccinations vac
+          On dea.location = vac.location
+          and dea.date = vac.date.
+
+
+
 
